@@ -1,0 +1,67 @@
+package lexer 
+
+import "golang-interpreter-and-compiler/src/monkey/token"
+
+/**
+ * readPosition is used to be able to peek ahead in the string. 
+ */
+type Lexer struct {
+	input			string // The string the lexer is initialized to parse.
+	position		int // The current position in input (char being currently processed)
+	readPosition	int // The next position in input (after char being currently processed)
+	ch				byte // The actual char being processed
+}
+
+func New(input string) *Lexer {
+	l := &Lexer{input: input}
+	l.readChar()
+	return l
+}
+
+/**
+ * Things are simplified here by the assumption that Monkey only supports
+ * the usage of ASCII characters. The full Unicode range complicates things
+ * by using multi-byte "characters" and Go runes (alias for int32) for storage.
+ */
+func (l *Lexer) readChar() {
+	if l.readPosition >= len(l.input) {
+		l.ch = 0
+	} else {
+		l.ch = l.input[l.readPosition]
+	}
+	l.position = l.readPosition
+	l.readPosition += 1
+}
+
+func (l *Lexer) NextToken() token.Token {
+	var tok token.Token
+
+	switch l.ch {
+	case '=':
+		tok = newToken(token.ASSIGN, l.ch)
+	case ';':
+		tok = newToken(token.SEMICOLON, l.ch)
+	case '(':
+		tok = newToken(token.LPAREN, l.ch)
+	case ')':
+		tok = newToken(token.RPAREN, l.ch)
+	case ',':
+		tok = newToken(token.COMMA, l.ch)
+	case '+':
+		tok = newToken(token.PLUS, l.ch)
+	case '{':
+		tok = newToken(token.LBRACE, l.ch)
+	case '}':
+		tok = newToken(token.RBRACE, l.ch)
+	case 0:
+		tok.Literal = ""
+		tok.Type = token.EOF
+	}
+
+	l.readChar()
+	return tok
+}
+
+func newToken(tokenType token.TokenType, ch byte) token.Token {
+	return token.Token{Type: tokenType, Literal: string(ch)}
+}
