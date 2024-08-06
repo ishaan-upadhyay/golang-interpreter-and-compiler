@@ -21,3 +21,6 @@
 go.work
 go.work.sum
 pkg/
+
+# Source code as provided
+waiig_code_1.7/
