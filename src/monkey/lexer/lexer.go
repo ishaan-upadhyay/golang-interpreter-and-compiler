@@ -1,6 +1,6 @@
 package lexer 
 
-import "golang-interpreter-and-compiler/src/monkey/token"
+import "monkey/token"
 
 /**
  * readPosition is used to be able to peek ahead in the string. 

@@ -7,8 +7,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"golang-interpreter-and-compiler/src/monkey/lexer"
-	"golang-interpreter-and-compiler/src/monkey/token"
+	"monkey/lexer"
+	"monkey/token"
 )
 
 const PROMPT = ">> "

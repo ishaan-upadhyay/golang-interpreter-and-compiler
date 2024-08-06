@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/user"
-	"golang-interpreter-and-compiler/src/monkey/repl"
+	"monkey/repl"
 )
 
 func main() {
