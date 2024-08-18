@@ -166,3 +166,26 @@ func (pe *PrefixExpression) String() string {
 
 	return out.String()
 }
+
+// Match infix expressions.
+type InfixExpression struct {
+	Token    token.Token
+	Operator string
+	Left     Expression
+	Right    Expression
+}
+
+func (il *InfixExpression) expressionNode()      {}
+func (il *InfixExpression) TokenLiteral() string { return il.Token.Literal }
+func (il *InfixExpression) String() string {
+
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(il.Left.String())
+	out.WriteString(" " + il.Operator + " ")
+	out.WriteString(il.Right.String())
+	out.WriteString(")")
+
+	return out.String()
+}
