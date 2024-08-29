@@ -1,15 +1,15 @@
-package lexer 
+package lexer
 
 import "monkey/token"
 
 /**
- * readPosition is used to be able to peek ahead in the string. 
+ * readPosition is used to be able to peek ahead in the string.
  */
 type Lexer struct {
-	input			string // The string the lexer is initialized to parse.
-	position		int // The current position in input (char being currently processed)
-	readPosition	int // The next position in input (after char being currently processed)
-	ch				byte // The actual char being processed
+	input        string // The string the lexer is initialized to parse.
+	position     int    // The current position in input (char being currently processed)
+	readPosition int    // The next position in input (after char being currently processed)
+	ch           byte   // The actual char being processed
 }
 
 func New(input string) *Lexer {
@@ -46,7 +46,7 @@ func (l *Lexer) NextToken() token.Token {
 			literal := string(ch) + string(l.ch)
 			tok = token.Token{Type: token.EQ, Literal: literal}
 		} else {
-		tok = newToken(token.ASSIGN, l.ch)
+			tok = newToken(token.ASSIGN, l.ch)
 		}
 	case '+':
 		tok = newToken(token.PLUS, l.ch)
@@ -84,11 +84,14 @@ func (l *Lexer) NextToken() token.Token {
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal)
-			// Return early here, since readIdentifier has already called readChar 
+			// Return early here, since readIdentifier has already called readChar
 			// in a loop past the end of the current token
 			return tok
 		} else if isDigit(l.ch) {
@@ -139,6 +142,19 @@ func (l *Lexer) readNumber() string {
 
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
+	}
+
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) peekChar() byte {
