@@ -37,7 +37,8 @@ const (
 	SUM         // +
 	PRODUCT     // *
 	PREFIX      // -X or !X
-	CALL        // myFunction(X) - this needs to have maximum binding power to encompass any operators in sub-expressions
+	CALL        // myFunction(X) - this needs to have higher binding power to encompass any operators in sub-expressions
+	INDEX       // identifier[X] - has the highest binding power, so the full expression X is consumed as belonging to the index expression
 )
 
 var precedences = map[token.TokenType]int{
@@ -50,6 +51,7 @@ var precedences = map[token.TokenType]int{
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
 	token.LPAREN:   CALL,
+	token.LBRACKET: INDEX,
 }
 
 func (p *Parser) peekPrecedence() int {
@@ -101,6 +103,8 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfix(token.LT, p.parseInfixExpression)
 	p.registerInfix(token.GT, p.parseInfixExpression)
 	p.registerInfix(token.LPAREN, p.parseCallExpression)
+	p.registerInfix(token.LBRACKET, p.parseIndexExpression) // We treat <expression>[<expression>] as an infix expression,
+	// with '[' representing the infix operator.
 
 	return p
 }
@@ -458,4 +462,17 @@ func (p *Parser) parseExpressionList(end token.TokenType) []ast.Expression {
 	}
 
 	return args
+}
+
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{Token: p.curToken, Left: left}
+
+	p.nextToken()
+	exp.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RBRACKET) {
+		return nil
+	}
+
+	return exp
 }
